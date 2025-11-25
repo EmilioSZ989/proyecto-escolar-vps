@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Materias - Sistema Escolar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/api.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="max-w-4xl mx-auto py-10">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold text-gray-800">Materias</h1>
+      <a href="index.html" class="text-blue-600 underline">← Volver al inicio</a>
+    </div>
+
+    <!-- Formulario creación -->
+    <div class="bg-white p-6 shadow rounded mb-8">
+      <h2 class="text-xl font-bold mb-4">Agregar materia</h2>
+      <div class="flex flex-col md:flex-row gap-2">
+        <input
+          id="nombre"
+          type="text"
+          placeholder="Nombre de la materia"
+          class="border px-3 py-2 flex-1"
+        />
+        <input
+          id="creditos"
+          type="number"
+          placeholder="Créditos"
+          class="border px-3 py-2 w-32"
+        />
+        <button
+          onclick="crear()"
+          class="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Guardar
+        </button>
+      </div>
+    </div>
+
+    <!-- Listado -->
+    <h2 class="text-2xl font-bold mb-3">Listado de materias</h2>
+    <table class="w-full bg-white shadow rounded">
+      <thead>
+        <tr class="bg-gray-200 text-left">
+          <th class="p-2">ID</th>
+          <th class="p-2">Nombre</th>
+          <th class="p-2">Créditos</th>
+          <th class="p-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla"></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function cargar() {
+      try {
+        const data = await apiGet("/materias");
+        const tabla = document.getElementById("tabla");
+        tabla.innerHTML = "";
+        data.forEach((m) => {
+          tabla.innerHTML += `
+            <tr class="border-t">
+              <td class="p-2">${m.id}</td>
+              <td class="p-2">${m.nombre}</td>
+              <td class="p-2">${m.creditos}</td>
+              <td class="p-2 space-x-2">
+                <button
+                  onclick="editar(${m.id}, '${m.nombre}', ${m.creditos})"
+                  class="bg-yellow-500 text-white px-3 py-1 rounded text-sm"
+                >
+                  Editar
+                </button>
+                <button
+                  onclick="eliminar(${m.id})"
+                  class="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                >
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (e) {
+        console.error(e);
+        alert("Error cargando materias");
+      }
+    }
+
+    async function crear() {
+      const nombre = document.getElementById("nombre").value.trim();
+      const creditos = document.getElementById("creditos").value;
+      if (!nombre || !creditos) {
+        alert("Completa todos los campos.");
+        return;
+      }
+
+      try {
+        await apiPost("/materias", { nombre, creditos: Number(creditos) });
+        document.getElementById("nombre").value = "";
+        document.getElementById("creditos").value = "";
+        cargar();
+      } catch (e) {
+        console.error(e);
+        alert("Error creando materia");
+      }
+    }
+
+    async function editar(id, nombreActual, creditosActuales) {
+      const nuevoNombre = prompt("Nuevo nombre de la materia:", nombreActual);
+      if (nuevoNombre === null) return;
+
+      const nuevosCreditos = prompt(
+        "Nuevos créditos:",
+        creditosActuales.toString()
+      );
+      if (nuevosCreditos === null) return;
+
+      try {
+        await apiPut(`/materias/${id}`, {
+          nombre: nuevoNombre.trim(),
+          creditos: Number(nuevosCreditos),
+        });
+        cargar();
+      } catch (e) {
+        console.error(e);
+        alert("Error editando materia");
+      }
+    }
+
+    async function eliminar(id) {
+      if (!confirm("¿Seguro que deseas eliminar esta materia?")) return;
+      try {
+        await apiDelete(`/materias/${id}`);
+        cargar();
+      } catch (e) {
+        console.error(e);
+        alert("Error eliminando materia");
+      }
+    }
+
+    cargar();
+  </script>
+</body>
+</html>

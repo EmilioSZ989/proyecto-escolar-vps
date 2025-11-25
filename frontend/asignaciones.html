@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Asignaciones - Sistema Escolar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/api.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="max-w-5xl mx-auto py-10">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold text-gray-800">Asignaciones</h1>
+      <a href="index.html" class="text-blue-600 underline">← Volver al inicio</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+      <!-- Asignar materia a estudiante -->
+      <div class="bg-white p-6 shadow rounded">
+        <h2 class="text-xl font-bold mb-4">Asignar materia a estudiante</h2>
+        <div class="flex flex-col gap-2 mb-4">
+          <input
+            id="est_id"
+            type="number"
+            placeholder="ID estudiante"
+            class="border px-3 py-2"
+          />
+          <input
+            id="mat_id_est"
+            type="number"
+            placeholder="ID materia"
+            class="border px-3 py-2"
+          />
+        </div>
+        <button
+          onclick="asignarEst()"
+          class="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Asignar
+        </button>
+      </div>
+
+      <!-- Asignar materia a profesor -->
+      <div class="bg-white p-6 shadow rounded">
+        <h2 class="text-xl font-bold mb-4">Asignar materia a profesor</h2>
+        <div class="flex flex-col gap-2 mb-4">
+          <input
+            id="prof_id"
+            type="number"
+            placeholder="ID profesor"
+            class="border px-3 py-2"
+          />
+          <input
+            id="mat_id_prof"
+            type="number"
+            placeholder="ID materia"
+            class="border px-3 py-2"
+          />
+        </div>
+        <button
+          onclick="asignarProf()"
+          class="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Asignar
+        </button>
+      </div>
+    </div>
+
+    <!-- Consultas de materias asignadas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Materias de un estudiante -->
+      <div class="bg-white p-6 shadow rounded">
+        <h2 class="text-xl font-bold mb-4">
+          Materias de un estudiante
+        </h2>
+        <div class="flex gap-2 mb-4">
+          <input
+            id="est_id_consulta"
+            type="number"
+            placeholder="ID estudiante"
+            class="border px-3 py-2 flex-1"
+          />
+          <button
+            onclick="consultarMateriasEst()"
+            class="bg-green-600 text-white px-4 py-2 rounded"
+          >
+            Consultar
+          </button>
+        </div>
+        <ul id="listaMateriasEst" class="list-disc pl-6 text-sm text-gray-800"></ul>
+      </div>
+
+      <!-- Materias de un profesor -->
+      <div class="bg-white p-6 shadow rounded">
+        <h2 class="text-xl font-bold mb-4">
+          Materias de un profesor
+        </h2>
+        <div class="flex gap-2 mb-4">
+          <input
+            id="prof_id_consulta"
+            type="number"
+            placeholder="ID profesor"
+            class="border px-3 py-2 flex-1"
+          />
+          <button
+            onclick="consultarMateriasProf()"
+            class="bg-green-600 text-white px-4 py-2 rounded"
+          >
+            Consultar
+          </button>
+        </div>
+        <ul id="listaMateriasProf" class="list-disc pl-6 text-sm text-gray-800"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function asignarEst() {
+      const estudiante_id = document.getElementById("est_id").value;
+      const materia_id = document.getElementById("mat_id_est").value;
+      if (!estudiante_id || !materia_id) {
+        alert("Completa los campos de estudiante y materia.");
+        return;
+      }
+
+      try {
+        await apiPost("/asignaciones/estudiante", {
+          estudiante_id: Number(estudiante_id),
+          materia_id: Number(materia_id),
+        });
+        alert("Materia asignada al estudiante.");
+      } catch (e) {
+        console.error(e);
+        alert("Error asignando materia al estudiante");
+      }
+    }
+
+    async function asignarProf() {
+      const profesor_id = document.getElementById("prof_id").value;
+      const materia_id = document.getElementById("mat_id_prof").value;
+      if (!profesor_id || !materia_id) {
+        alert("Completa los campos de profesor y materia.");
+        return;
+      }
+
+      try {
+        await apiPost("/asignaciones/profesor", {
+          profesor_id: Number(profesor_id),
+          materia_id: Number(materia_id),
+        });
+        alert("Materia asignada al profesor.");
+      } catch (e) {
+        console.error(e);
+        alert("Error asignando materia al profesor");
+      }
+    }
+
+    async function consultarMateriasEst() {
+      const id = document.getElementById("est_id_consulta").value;
+      if (!id) {
+        alert("Ingresa un ID de estudiante.");
+        return;
+      }
+
+      try {
+        const data = await apiGet(`/asignaciones/estudiante/${id}`);
+        const lista = document.getElementById("listaMateriasEst");
+        lista.innerHTML = "";
+        if (data.length === 0) {
+          lista.innerHTML = "<li>Sin materias asignadas.</li>";
+          return;
+        }
+        data.forEach((m) => {
+          lista.innerHTML += `<li>${m.nombre}</li>`;
+        });
+      } catch (e) {
+        console.error(e);
+        alert("Error consultando materias del estudiante");
+      }
+    }
+
+    async function consultarMateriasProf() {
+      const id = document.getElementById("prof_id_consulta").value;
+      if (!id) {
+        alert("Ingresa un ID de profesor.");
+        return;
+      }
+
+      try {
+        const data = await apiGet(`/asignaciones/profesor/${id}`);
+        const lista = document.getElementById("listaMateriasProf");
+        lista.innerHTML = "";
+        if (data.length === 0) {
+          lista.innerHTML = "<li>Sin materias asignadas.</li>";
+          return;
+        }
+        data.forEach((m) => {
+          lista.innerHTML += `<li>${m.nombre}</li>`;
+        });
+      } catch (e) {
+        console.error(e);
+        alert("Error consultando materias del profesor");
+      }
+    }
+  </script>
+</body>
+</html>
