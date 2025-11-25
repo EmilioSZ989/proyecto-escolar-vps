@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Profesores - Sistema Escolar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/api.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="max-w-4xl mx-auto py-10">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold text-gray-800">Profesores</h1>
+      <a href="index.html" class="text-blue-600 underline">← Volver al inicio</a>
+    </div>
+
+    <!-- Formulario creación -->
+    <div class="bg-white p-6 shadow rounded mb-8">
+      <h2 class="text-xl font-bold mb-4">Registrar profesor</h2>
+      <div class="flex flex-col md:flex-row gap-2">
+        <input
+          id="nombre"
+          type="text"
+          placeholder="Nombre"
+          class="border px-3 py-2 flex-1"
+        />
+        <input
+          id="especialidad"
+          type="text"
+          placeholder="Especialidad"
+          class="border px-3 py-2 flex-1"
+        />
+        <button
+          onclick="crear()"
+          class="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Guardar
+        </button>
+      </div>
+    </div>
+
+    <!-- Listado -->
+    <h2 class="text-2xl font-bold mb-3">Listado de profesores</h2>
+    <table class="w-full bg-white shadow rounded">
+      <thead>
+        <tr class="bg-gray-200 text-left">
+          <th class="p-2">ID</th>
+          <th class="p-2">Nombre</th>
+          <th class="p-2">Especialidad</th>
+          <th class="p-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla"></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function cargar() {
+      try {
+        const data = await apiGet("/profesores");
+        const tabla = document.getElementById("tabla");
+        tabla.innerHTML = "";
+        data.forEach((p) => {
+          tabla.innerHTML += `
+            <tr class="border-t">
+              <td class="p-2">${p.id}</td>
+              <td class="p-2">${p.nombre}</td>
+              <td class="p-2">${p.especialidad}</td>
+              <td class="p-2">
+                <button
+                  onclick="eliminar(${p.id})"
+                  class="bg-red-500 text-white px-3 py-1 rounded text-sm"
+                >
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (e) {
+        console.error(e);
+        alert("Error cargando profesores");
+      }
+    }
+
+    async function crear() {
+      const nombre = document.getElementById("nombre").value.trim();
+      const especialidad = document.getElementById("especialidad").value.trim();
+      if (!nombre || !especialidad) {
+        alert("Completa todos los campos.");
+        return;
+      }
+
+      try {
+        await apiPost("/profesores", { nombre, especialidad });
+        document.getElementById("nombre").value = "";
+        document.getElementById("especialidad").value = "";
+        cargar();
+      } catch (e) {
+        console.error(e);
+        alert("Error creando profesor");
+      }
+    }
+
+    async function eliminar(id) {
+      if (!confirm("¿Seguro que deseas eliminar este profesor?")) return;
+      try {
+        await apiDelete(`/profesores/${id}`);
+        cargar();
+      } catch (e) {
+        console.error(e);
+        alert("Error eliminando profesor");
+      }
+    }
+
+    cargar();
+  </script>
+</body>
+</html>
