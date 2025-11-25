@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sistema Escolar - Menú Principal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="max-w-4xl mx-auto py-10">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">
+      Sistema Escolar – Panel Principal
+    </h1>
+
+    <p class="mb-6 text-gray-700">
+      Sistema escolar con módulos de estudiantes, profesores, materias y asignaciones,
+      desplegado en arquitectura de dos VPS (base de datos y sistema).
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <a href="estudiantes.html" class="bg-white p-6 shadow rounded hover:bg-gray-50">
+        <h2 class="text-xl font-bold mb-2">Estudiantes</h2>
+        <p>Crear, listar y eliminar estudiantes.</p>
+      </a>
+
+      <a href="profesores.html" class="bg-white p-6 shadow rounded hover:bg-gray-50">
+        <h2 class="text-xl font-bold mb-2">Profesores</h2>
+        <p>Registrar, listar y eliminar profesores.</p>
+      </a>
+
+      <a href="materias.html" class="bg-white p-6 shadow rounded hover:bg-gray-50">
+        <h2 class="text-xl font-bold mb-2">Materias</h2>
+        <p>Crear, listar, editar y eliminar materias.</p>
+      </a>
+
+      <a href="asignaciones.html" class="bg-white p-6 shadow rounded hover:bg-gray-50">
+        <h2 class="text-xl font-bold mb-2">Asignaciones</h2>
+        <p>
+          Asignar materias a estudiantes y profesores y consultar sus materias asignadas.
+        </p>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
